@@ -1,0 +1,10 @@
+spring:
+  security:
+    jwt:
+      key: qjsxepxjalzi #设置秘钥
+      expire: 7 #设置过期天数
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
