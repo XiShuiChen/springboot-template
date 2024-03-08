@@ -9,6 +9,7 @@ import com.example.utils.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
@@ -90,11 +91,13 @@ public class SecurityConfiguration {
         User user = (User) authentication.getPrincipal();
         Account account = service.findAccountByNameOrEmail(user.getUsername());
         String token = utils.createJwt(user, account.getId(), account.getUsername());
-        AuthorizeVO vo = new AuthorizeVO();
-        vo.setExpire(utils.expireTime());
-        vo.setRole(account.getRole());
-        vo.setToken(token);
-        vo.setUsername(account.getUsername());
+        AuthorizeVO vo = account.asViewObject(AuthorizeVO.class, v -> {
+            v.setExpire(utils.expireTime());
+            v.setToken(token);
+        });
+//        BeanUtils.copyProperties(account, vo);
+//        vo.setExpire(utils.expireTime());
+//        vo.setToken(token);
         response.getWriter().write(RestBean.success(vo).asJsonString());
     }
 
