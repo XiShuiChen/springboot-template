@@ -86,6 +86,7 @@ public class JwtUtils {
         return claims.get("id").asInt();
     }
 
+    //使指定uuid的jwt无效
     public boolean invalidateJwt(String headerToken){
         String token = this.convertToken(headerToken);
         if (token == null) return false;
@@ -100,6 +101,7 @@ public class JwtUtils {
         }
     }
 
+    //将指定uuid的jwt加入黑名单
     private boolean deleteToken(String uuid, Date time){
         if(this.isInvalidToken(uuid)) return false;
         Date now = new Date();
@@ -108,6 +110,7 @@ public class JwtUtils {
         return true;
     }
 
+    //通过时间验证jwt是否过期
     private boolean isInvalidToken(String uuid){
         return Boolean.TRUE.equals(template.hasKey(Const.JWT_BLACK_LIST + uuid));
     }

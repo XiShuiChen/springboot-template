@@ -1,8 +1,10 @@
 package com.example.config;
 
 import com.example.entity.RestBean;
+import com.example.entity.dto.Account;
 import com.example.entity.vo.response.AuthorizeVO;
 import com.example.filter.JwtAuthorizeFilter;
+import com.example.service.AccountService;
 import com.example.utils.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +32,9 @@ public class SecurityConfiguration {
 
     @Resource
     JwtAuthorizeFilter jwtAuthorizeFilter;
+
+    @Resource
+    AccountService service;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -59,6 +64,7 @@ public class SecurityConfiguration {
                 .build();
     }
 
+    //未验证
     public void onUnauthorized(HttpServletRequest request,
                                HttpServletResponse response,
                                AuthenticationException exception) throws IOException {
@@ -67,6 +73,7 @@ public class SecurityConfiguration {
         response.getWriter().write(RestBean.unauthorized(exception.getMessage()).asJsonString());
     }
 
+    //验证但无权限
     public void onAccessDeny(HttpServletRequest request,
                              HttpServletResponse response,
                              AccessDeniedException accessDeniedException) throws IOException {
@@ -81,12 +88,13 @@ public class SecurityConfiguration {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         User user = (User) authentication.getPrincipal();
-        String token = utils.createJwt(user, 1, "小明");
+        Account account = service.findAccountByNameOrEmail(user.getUsername());
+        String token = utils.createJwt(user, account.getId(), account.getUsername());
         AuthorizeVO vo = new AuthorizeVO();
         vo.setExpire(utils.expireTime());
-        vo.setRole("");
+        vo.setRole(account.getRole());
         vo.setToken(token);
-        vo.setUsername("小明");
+        vo.setUsername(account.getUsername());
         response.getWriter().write(RestBean.success(vo).asJsonString());
     }
 
