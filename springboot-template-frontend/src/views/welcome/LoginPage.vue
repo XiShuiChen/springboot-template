@@ -1,12 +1,32 @@
 <script setup>
-import {reactive} from "vue";
+import {reactive, ref} from "vue";
 import {Key, User} from "@element-plus/icons-vue"
+import {login} from "@/net";
+
+const formRef = ref()
 
 const form = reactive({
   username: '',
   password: '',
   remember: false
 })
+
+const rule = {
+  username: [
+    {required: true, message: '请输入用户名'}
+  ],
+  password: [
+    {required: true, message: '请输入密码'}
+  ]
+}
+
+function userLogin(){
+  formRef.value.validate((isValid) => {
+    if (isValid) {
+      login(form.username, form.password, form.remember, () => {})
+    }
+  })
+}
 </script>
 
 <template>
@@ -17,8 +37,8 @@ const form = reactive({
     </div>
 
     <div style="margin-top: 42px">
-      <el-form v-model="form">
-        <el-form-item>
+      <el-form :model="form" :rules="rule" ref="formRef">
+        <el-form-item prop="username">
           <el-input v-model="form.username" maxlength="20" type="text" placeholder="用户名/邮箱">
             <template #prefix>
               <el-icon>
@@ -28,7 +48,7 @@ const form = reactive({
           </el-input>
         </el-form-item>
 
-        <el-form-item>
+        <el-form-item prop="password">
           <el-input v-model="form.password" maxlength="20" type="password" placeholder="密码">
             <template #prefix>
               <el-icon>
@@ -40,7 +60,7 @@ const form = reactive({
 
         <el-row>
           <el-col :span="12" style="text-align: left">
-            <el-form-item>
+            <el-form-item prop="remember">
               <el-checkbox v-model="form.remember" label="记住我"/>
             </el-form-item>
           </el-col>
@@ -54,7 +74,7 @@ const form = reactive({
     </div>
 
     <div style="margin-top: 40px">
-      <el-button style="width: 270px" type="success" plain>立即登录</el-button>
+      <el-button @click="userLogin()" style="width: 270px" type="success" plain>立即登录</el-button>
     </div>
 
     <el-divider>
