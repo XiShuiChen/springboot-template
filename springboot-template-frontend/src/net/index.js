@@ -13,6 +13,13 @@ const defaultError = (err) => {
     ElMessage.warning('发生了一些错误，请联系管理员')
 }
 
+function accessHeader() {
+    const token = takeAccessToken();
+    return token ? {
+        'Authorization': `Bearer ${takeAccessToken()}`
+    } : {}
+}
+
 function takeAccessToken() {
     const str = localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName)
     if (!str) return null
@@ -57,6 +64,14 @@ function internalGet(url, header, success, failure, error = defaultError) {
     }).catch(err => error(err))
 }
 
+function post(url, data, success, failure = defaultFailure) {
+    internalPost(url, data, accessHeader(), success, failure)
+}
+
+function get(url, success, failure = defaultFailure) {
+    internalGet(url, accessHeader(), success, failure)
+}
+
 function login(username, password, remember, success, failure = defaultFailure) {
     internalPost('/api/auth/login', {
         username: username,
@@ -70,4 +85,16 @@ function login(username, password, remember, success, failure = defaultFailure) 
     }, failure)
 }
 
-export {login}
+function logout(success, failure = defaultFailure) {
+    get('/api/auth/logout', () => {
+        deleteAccessToken()
+        ElMessage.success("退出登录成功")
+        success()
+    }, failure)
+}
+
+function unauthorized(){
+    return !takeAccessToken()
+}
+
+export {login, logout, get, post, unauthorized}
