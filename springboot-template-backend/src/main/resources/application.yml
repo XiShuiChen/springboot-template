@@ -5,13 +5,26 @@ spring:
     jwt:
       key: qjsxepxjalzi #设置秘钥
       expire: 7 #设置过期天数
+
   data:
     redis:
       host: 127.0.0.1
       port: 6379
       database: 0
+
   datasource:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/bootstudy
+
+  mail:
+    host: smtp.163.com
+    username: xi_shuichen@163.com
+    password: CLWGHMIXWYWZATFA
+
+  rabbitmq:
+    addresses: localhost
+    username: admin
+    password: 123456
+    virtual-host: /
